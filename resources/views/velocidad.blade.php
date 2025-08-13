@@ -342,34 +342,42 @@
             });
 
             // SQL Server LMD
-            $('#btn_sqlsrv_lmd').click(function () {
-                $.post("{{ route('sqlserver.lmd') }}", {}, function (data) {
-                    $('#txt_sqlsrvLMD').val(data.insertados + ' / ' + data.total);
-                    Swal.fire(
-                        'Éxito',
-                        'Registros LMD SQL Server insertados: ' + data.insertados +
-                        '<br>Total en tabla: ' + data.total,
-                        'success'
-                    );
+            $('#btn_sqlserver_lmd').click(function () {
+                $.post("{{ route('sqlserver.lmd') }}", $('#form').serialize(), function (data) {
+                    if (data.error) {
+                        Swal.fire('Error', data.error, 'error');
+                        return;
+                    }
+                    $('#txt_sqlserverLMD').val(data.insertados + ' / ' + data.total);
+                    Swal.fire({
+                        title: 'Éxito LMD',
+                        html: 'Registros LMD SQL Server insertados: <b>' + data.insertados + '</b><br>Total en tabla: <b>' + data.total + '</b>',
+                        icon: 'success'
+                    });
                 }).fail(function (xhr) {
-                    Swal.fire('Error', xhr.responseJSON?.error || 'Error desconocido', 'error');
+                    console.error(xhr.responseText);
+                    Swal.fire('Error', 'Error en la petición (revisa consola y laravel.log)', 'error');
                 });
             });
 
             // SQL Server SP
-            $('#btn_sqlsrv_sp').click(function () {
-                $.post("{{ route('sqlserver.sp') }}", {}, function (data) {
-                    $('#txt_sqlsrvSP').val(data.insertados + ' / ' + data.total);
-                    Swal.fire(
-                        'Éxito',
-                        'Registros SP SQL Server insertados: ' + data.insertados +
-                        '<br>Total en tabla: ' + data.total,
-                        'success'
-                    );
+            $('#btn_sqlserver_sp').click(function () {
+                $.post("{{ route('sqlserver.sp') }}", $('#form').serialize(), function (data) {
+                    if (data.error) {
+                        Swal.fire('Error', data.error, 'error');
+                        return;
+                    }
+                    $('#txt_sqlserverSP').val(data.insertados + ' / ' + data.total);
+                    Swal.fire({
+                        title: 'Éxito SP',
+                        html: 'Registros SP SQL Server insertados: <b>' + data.insertados + '</b><br>Total en tabla: <b>' + data.total + '</b>',
+                        icon: 'success'
+                    });
                 }).fail(function (xhr) {
-                    Swal.fire('Error', xhr.responseJSON?.error || 'Error desconocido', 'error');
+                    console.error(xhr.responseText);
+                    Swal.fire('Error', 'Error en la petición (revisa consola y laravel.log)', 'error');
                 });
-            });
+            }); 
 
             // SQL Server borrar registros
             $('#sqlserver_delete').click(function () {

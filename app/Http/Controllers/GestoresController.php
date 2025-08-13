@@ -77,7 +77,7 @@ class GestoresController extends Controller
     public function oracleDelete(Request $request)
     {
         try {
-            DB::connection('oracle')->statement('DELETE FROM producto2');
+            DB::connection('oracle')->statement('DELETE FROM producto');
             // También podrías usar: DB::connection('oracle')->table('producto2')->truncate();
             return response()->json(['mensaje' => 'Registros Oracle borrados']);
         } catch (\Exception $e) {
@@ -166,12 +166,12 @@ class GestoresController extends Controller
         }
     }
 
-    public function sqlsrvLmd(Request $request)
+    public function sqlserverLmd(Request $request)
     {
         @set_time_limit(0);
         $contador = 0;
         $fecha = $request->input('fecha', '2022-12-12');
-        $horaFin = strtotime('+15 seconds');
+        $horaFin = time() + 15; // CORREGIDO
 
         while (time() <= $horaFin) {
             try {
@@ -182,6 +182,7 @@ class GestoresController extends Controller
                     'fecha' => $fecha,
                 ]);
                 $contador++;
+                usleep(100000);
             } catch (\Exception $e) {
                 \Log::error('Error SQL Server LMD: ' . $e->getMessage());
                 return response()->json(['error' => 'Error SQL Server LMD: ' . $e->getMessage()], 500);
@@ -196,17 +197,17 @@ class GestoresController extends Controller
         ]);
     }
 
-    public function sqlsrvSp(Request $request)
+    public function sqlserverSp(Request $request)
     {
         @set_time_limit(0);
         $contador = 0;
         $fecha = $request->input('fecha', '2022-12-12');
-        $horaFin = strtotime('+15 seconds');
+        $horaFin = time() + 15;  // <-- Aquí la diferencia importante
 
         while (time() <= $horaFin) {
             try {
                 DB::connection('sqlsrv')->statement(
-                    'EXEC pa_insertarproducto ?, ?, ?, ?',
+                    'EXEC dbo.pa_insertarproducto ?, ?, ?, ?',
                     [
                         $request->input('id_producto', 1),
                         $request->input('descripcion', 'Computadora'),
@@ -215,6 +216,7 @@ class GestoresController extends Controller
                     ]
                 );
                 $contador++;
+                usleep(200000); // opcional para no saturar la DB
             } catch (\Exception $e) {
                 \Log::error('Error SQL Server SP: ' . $e->getMessage());
                 return response()->json(['error' => 'Error SQL Server SP: ' . $e->getMessage()], 500);
@@ -305,7 +307,7 @@ class GestoresController extends Controller
     public function mysqlDelete(Request $request)
     {
         try {
-            DB::connection('mysql')->table('productos')->truncate();
+            DB::connection('mysql')->table('producto')->truncate();
             return response()->json(['mensaje' => 'Registros MySQL borrados']);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error MySQL Delete: ' . $e->getMessage()], 500);
